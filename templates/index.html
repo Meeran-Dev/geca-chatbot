@@ -3,9 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GECA-Chatbot</title>
+    <title>GECA CHATBOT</title>
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
-<body>
-    
+<body data-theme="dark">
+    <div class="chat-container">
+        <div class="main-content">
+            <div class="chat-header" id="chat-header">
+                <img src="https://imgs.search.brave.com/t_NFrSljQNC2RC7oUDEJblKYFIve7WJAjZKBtNgdk8s/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9nZWNh/LmFjLmluL2ltYWdl/cy9sb2dvYWNzbi5w/bmc" class="logo">
+                <h2 data-testid="navbar-title">GECA CHATBOT</h2>
+                <button id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+            <div class="start-screen" id="start-screen">
+                <h1>GECA CHATBOT</h1>
+                <div class="start-screen-input">
+                    <div class="input-icons">
+                        <button type="button" onclick="attachPhoto()" aria-label="Attach Photo" title="Attach Photo">
+                            📷
+                        </button>
+                    </div>
+                    <input type="text" id="search-input" placeholder="Type your message...">
+                    <button type="button" onclick="sendInitialMessage()">Send</button>
+                </div>
+            </div>
+            <div class="chat-body" id="chat-body" style="display: none;">
+                <!-- Chat body starts empty -->
+            </div>
+            <div class="chat-footer" id="chat-footer" style="display: none;">
+                <div class="footer-input-container">
+                    <div class="input-icons">
+                        <button type="button" onclick="attachPhoto()" aria-label="Attach Photo" title="Attach Photo">
+                            📷
+                        </button>
+                    </div>
+                    <input type="text" id="user-input" placeholder="Type your message here...">
+                    <button type="button" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/script.js"></script>
 </body>
 </html>
