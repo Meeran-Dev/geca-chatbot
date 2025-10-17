@@ -71,20 +71,49 @@ function sendInitialMessage() {
         userMsg.textContent = messageText;
         chatBody.appendChild(userMsg);
 
-        // Dynamic bot response based on time
-        const botMsg = document.createElement('div');
-        botMsg.className = 'message bot-message';
-        const time = new Date();
-        if (time.getHours() >= 17) {
-            botMsg.textContent = `Good evening! It's 05:05 PM IST on October 13, 2025. ${messageText} - This is a sample response! How can I help you?`;
-        } else {
-            botMsg.textContent = `Good day! It's 05:05 PM IST on October 13, 2025. ${messageText} - This is a sample response! How can I help you?`;
-        }
-        chatBody.appendChild(botMsg);
-        lastMessage = messageText;
-
-        input.value = '';
+        // Show loading indicator
+        const loadingMsg = document.createElement('div');
+        loadingMsg.className = 'message bot-message loading';
+        loadingMsg.textContent = 'Thinking...';
+        chatBody.appendChild(loadingMsg);
         chatBody.scrollTop = chatBody.scrollHeight;
+
+        // Send message to backend
+        fetch('/generate_response', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: messageText })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Remove loading message
+            chatBody.removeChild(loadingMsg);
+
+            const botMsg = document.createElement('div');
+            botMsg.className = 'message bot-message';
+            if (data.error) {
+                botMsg.textContent = 'Sorry, I encountered an error: ' + data.error;
+            } else {
+                botMsg.textContent = data.response;
+            }
+            chatBody.appendChild(botMsg);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        })
+        .catch(error => {
+            // Remove loading message
+            chatBody.removeChild(loadingMsg);
+
+            const botMsg = document.createElement('div');
+            botMsg.className = 'message bot-message';
+            botMsg.textContent = 'Sorry, I couldn\'t process your message. Please try again.';
+            chatBody.appendChild(botMsg);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        });
+
+        lastMessage = messageText;
+        input.value = '';
     }
 }
 
@@ -108,21 +137,49 @@ function sendMessage() {
         userMsg.textContent = messageText;
         chatBody.appendChild(userMsg);
 
-        // Dynamic bot response
-        const botMsg = document.createElement('div');
-        botMsg.className = 'message bot-message';
-        if (messageText.toLowerCase().includes('forget')) {
-            botMsg.textContent = 'If you want me to forget a chat, click the book icon beneath the message that references the chat and select it from the menu. Alternatively, you can disable memory in the "Data Controls" section of settings.';
-        } else if (lastMessage && messageText.toLowerCase().includes(lastMessage.toLowerCase())) {
-            botMsg.textContent = `You mentioned ${lastMessage} earlier. Here's a follow-up: This is a sample response! How can I assist?`;
-        } else {
-            botMsg.textContent = 'This is a sample response! How can I help you?';
-        }
-        chatBody.appendChild(botMsg);
-        lastMessage = messageText;
-
-        input.value = '';
+        // Show loading indicator
+        const loadingMsg = document.createElement('div');
+        loadingMsg.className = 'message bot-message loading';
+        loadingMsg.textContent = 'Thinking...';
+        chatBody.appendChild(loadingMsg);
         chatBody.scrollTop = chatBody.scrollHeight;
+
+        // Send message to backend
+        fetch('/generate_response', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: messageText })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Remove loading message
+            chatBody.removeChild(loadingMsg);
+
+            const botMsg = document.createElement('div');
+            botMsg.className = 'message bot-message';
+            if (data.error) {
+                botMsg.textContent = 'Sorry, I encountered an error: ' + data.error;
+            } else {
+                botMsg.textContent = data.response;
+            }
+            chatBody.appendChild(botMsg);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        })
+        .catch(error => {
+            // Remove loading message
+            chatBody.removeChild(loadingMsg);
+
+            const botMsg = document.createElement('div');
+            botMsg.className = 'message bot-message';
+            botMsg.textContent = 'Sorry, I couldn\'t process your message. Please try again.';
+            chatBody.appendChild(botMsg);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        });
+
+        lastMessage = messageText;
+        input.value = '';
     }
 }
 
