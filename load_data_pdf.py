@@ -2,11 +2,11 @@ from pymongo import MongoClient
 from langchain_voyageai import VoyageAIEmbeddings
 from langchain_community.vectorstores import MongoDBAtlasVectorSearch
 from langchain_community.document_loaders import PyPDFLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain.output_parsers import PydanticOutputParser
+from langchain_core.output_parsers import PydanticOutputParser
 from pydantic import BaseModel, Field
 from langchain_core.prompts import PromptTemplate
 from typing import List
@@ -52,10 +52,10 @@ def gemini_metadata_tagger(documents, chain):
 
 client = MongoClient(os.environ["MONGODB_URI"])
 dbName = "Second-Year-CSE"
-collectionName = "Syllabus"
+collectionName = "Faculty"
 collection = client[dbName][collectionName]
 
-loader = PyPDFLoader("./Data/NEP_SYCSE.pdf")
+loader = PyPDFLoader("./Data/Faculty.pdf")
 pages = loader.load()
 cleaned_pages = []
 
