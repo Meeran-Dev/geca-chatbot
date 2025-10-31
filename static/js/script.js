@@ -26,32 +26,34 @@ function newChat() {
     lastMessage = null;
 }
 
-function attachPhoto() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.onchange = function(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const chatBody = document.getElementById('chat-body');
-            const photoMsg = document.createElement('div');
-            photoMsg.className = 'message user-message photo-message';
-            photoMsg.innerHTML = `<img src="${URL.createObjectURL(file)}" alt="Attached photo" style="max-width: 200px; border-radius: 8px;">`;
-            chatBody.appendChild(photoMsg);
-            chatBody.scrollTop = chatBody.scrollHeight;
+function markdownToHtml(markdown) {
+            // 1. Handle code blocks (simple non-multiline for now)
+            let html = markdown.replace(/`([^`]+)`/g, '<code>$1</code>');
+            
+            // 2. Convert bold (**text**)
+            html = html.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
 
-            // Simulate bot response for image
-            setTimeout(() => {
-                const botMsg = document.createElement('div');
-                botMsg.className = 'message bot-message';
-                botMsg.textContent = 'I received your photo! It looks interesting. How can I assist you further?';
-                chatBody.appendChild(botMsg);
-                chatBody.scrollTop = chatBody.scrollHeight;
-            }, 500);
+            // 3. Convert bullet lists (* item)
+            // Replace list items with <li>, preserving leading/trailing spaces for list grouping
+            html = html.replace(/^(?:[\s]*?)[*-]\s+(.*)$/gm, '<li>$1</li>');
+            
+            // Group contiguous <li> elements into <ul> blocks
+            html = html.replace(/(<li>.*?<\/li>)+/gs, '<ul>$&</ul>');
+            
+            // Remove redundant list wrappers (e.g., </ul><ul>)
+            html = html.replace(/<\/ul>\n?<ul>/g, ''); 
+
+            // 4. Convert double newlines to paragraph breaks, single newlines to <br>
+            html = html.replace(/\n\s*\n/g, '</p><p>');
+            html = html.replace(/\n/g, '<br>');
+            
+            // 5. Wrap the whole thing in a <p> tag if it doesn't already start with a block element
+            if (!html.startsWith('<ul>') && !html.startsWith('<p>')) {
+                 html = `<p>${html}</p>`;
+            }
+
+            return html;
         }
-    };
-    input.click();
-}
 
 function sendInitialMessage() {
     const input = document.getElementById('search-input');
@@ -117,6 +119,23 @@ function sendInitialMessage() {
     }
 }
 
+function appendMessage(text, isUser, isError = false) {
+            const chatBody = document.getElementById('chat-body');
+            const messageWrapper = document.createElement('div');
+            messageWrapper.className = `message ${isUser ? 'user-message' : 'bot-message'} ${isError ? 'error-message' : ''}`;
+            
+            if (isUser || isError) {
+                // User messages and error messages are plain text
+                messageWrapper.textContent = text;
+            } else {
+                // Bot responses are converted from Markdown to HTML
+                messageWrapper.innerHTML = markdownToHtml(text);
+            }
+
+            chatBody.appendChild(messageWrapper);
+            chatBody.scrollTop = chatBody.scrollHeight; // Auto-scroll to bottom
+        }
+
 function sendMessage() {
     const input = document.getElementById('user-input');
     const messageText = input.value.trim();
@@ -162,10 +181,8 @@ function sendMessage() {
             if (data.error) {
                 botMsg.textContent = 'Sorry, I encountered an error: ' + data.error;
             } else {
-                botMsg.textContent = data.response;
+                appendMessage(data.response, false);
             }
-            chatBody.appendChild(botMsg);
-            chatBody.scrollTop = chatBody.scrollHeight;
         })
         .catch(error => {
             // Remove loading message
