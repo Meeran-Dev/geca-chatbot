@@ -33,14 +33,14 @@ try:
         dbName + "." + "Syllabus",
         embeddings,
         index_name=index,
-    ).as_retriever(search_kwargs={"k": 6})
+    ).as_retriever(search_kwargs={"k": 3})
 
     retriever_faculty = MongoDBAtlasVectorSearch.from_connection_string(
         MONGO_URI,
         dbName + "." + "Faculty",
         embeddings,
         index_name=index,
-    ).as_retriever(search_kwargs={"k": 3})
+    ).as_retriever(search_kwargs={"k": 70})
 
     retriever_timetable = MongoDBAtlasVectorSearch.from_connection_string(
         MONGO_URI,
