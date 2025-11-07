@@ -10,3 +10,4 @@ pydantic
 pymongo
 python-dotenv
 waitress
+sentence_transformers
