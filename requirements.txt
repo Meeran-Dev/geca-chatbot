@@ -1,11 +1,12 @@
 Flask==3.1.2
-# Update all LangChain related packages to recent versions (or remove locks to let pip choose)
-langchain==0.2.11 
-langchain_community==0.2.9
-langchain_core==0.2.21
-langchain_google_genai==0.0.21
+# Use modern, compatible versions of the core packages
+langchain>=0.2.11
+langchain_community>=0.2.9
+langchain_core>=0.2.21
+# Use the latest version found, 3.0.1, or let pip find the best version (>=3.0.1)
+langchain_google_genai>=3.0.1 
 langchain_mongodb==0.7.2
-langchain_text_splitters==0.2.1
+langchain_text_splitters>=0.2.1
 pandas==2.3.3
 pydantic==2.12.4
 pymongo==4.15.3
