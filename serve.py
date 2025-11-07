@@ -3,11 +3,13 @@ import os
 from waitress import serve
 from index import app # or wherever your WSGI app object is
 
-# Render uses the PORT environment variable, defaulting to 5000 or 10000
-# We will use os.environ.get('PORT', '5000') to be safe.
+print("--- Start: Reading Configuration ---")
 PORT = int(os.environ.get('PORT', 5000)) 
+print(f"--- Config Read: PORT={PORT} ---")
 
 if __name__ == '__main__':
-    print(f"Starting Waitress server on http://0.0.0.0:{PORT}")
-    # Host must be 0.0.0.0 to listen on all public interfaces
+    print("--- Start: Application Initialization ---")
+    
+    print("--- End: Application Initialization ---")
     serve(app, host='0.0.0.0', port=PORT, threads=4)
+    print("--- End: Server Started ---")
