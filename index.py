@@ -6,8 +6,21 @@ from langchain_core.runnables import RunnablePassthrough, RunnableParallel
 from langchain_core.output_parsers import StrOutputParser
 from langchain_google_genai import ChatGoogleGenerativeAI
 import os
+import logging
+import sys
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+
+logging.info("--- RAG APP STARTUP CHECKPOINT 1: Module loading started ---")
+
+if 'MONGODB_URI' not in os.environ:
+    logging.error("FATAL: MONGO_URI environment variable is missing!")
+
+logging.info("--- RAG APP STARTUP CHECKPOINT 2: DB/API Clients initialized ---")
 
 app = Flask(__name__)
+
+logging.info("--- RAG APP STARTUP CHECKPOINT 3: Flask instance created ---")
 
 MONGO_URI = os.environ.get("MONGODB_URI", "mongodb://localhost:27017/")
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "YOUR_GEMINI_API_KEY_HERE")
