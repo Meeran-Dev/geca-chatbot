@@ -1,43 +1,79 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GECA CHATBOT</title>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <title>GECA-Bot | Modern College Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
+    <link rel="icon" href="{{ url_for('static', path='/icons/logoacsn.png') }}">
 </head>
-<body data-theme="dark">
-    <div class="chat-container">
-        <div class="main-content">
-            <div class="chat-header" id="chat-header">
-                <img src="/static/icons/logoacsn.png" class="logo">
-                <div class="header-title-group">
-                    <h2 data-testid="navbar-title">GECA CHATBOT</h2>
-                    <p class="header-tagline">College info assistant</p>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="chat-header">
+            <div class="header-left">
+                <img src="{{ url_for('static', path='/icons/logoacsn.png') }}" alt="GECA Logo" class="logo">
+                <div class="header-text">
+                    <h1>GECA-Bot</h1>
+                    <p class="status"><span class="status-dot"></span> Online</p>
                 </div>
-                <button id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme">
-                    <span class="theme-icon">🌙</span>
+            </div>
+            <div class="header-right">
+                <button id="themeToggle" class="icon-btn" aria-label="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="clearChat" class="icon-btn" aria-label="Clear chat">
+                    <i class="fas fa-trash-alt"></i>
                 </button>
             </div>
-            <div class="start-screen" id="start-screen">
-                <h1>GECA CHATBOT</h1>
-                <p class="start-subtitle">Ask about syllabus, faculty, timetable, and student life.</p>
-                <div class="start-screen-input">
-                    <input type="text" id="search-input" placeholder="Type your message...">
-                    <button type="button" onclick="sendInitialMessage()">SEND</button>
+        </header>
+
+        <!-- Chat Container -->
+        <main class="chat-container" id="chatContainer">
+            <div class="messages-wrapper" id="messagesWrapper">
+                <!-- Welcome Message -->
+                <div class="message bot-message">
+                    <div class="avatar bot-avatar">
+                        <img src="{{ url_for('static', path='/icons/logoacsn.png') }}" alt="Bot Avatar">
+                    </div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            Hello! I'm GECA-Bot, your college assistant. Ask me about syllabus, faculty, timetables, or campus info.
+                        </div>
+                        <span class="message-time">Just now</span>
+                    </div>
                 </div>
             </div>
-            <div class="chat-body" id="chat-body" style="display: none;">
-                <!-- Chat body starts empty -->
-            </div>
-            <div class="chat-footer" id="chat-footer" style="display: none;">
-                <div class="footer-input-container">
-                    <input type="text" id="user-input" placeholder="Type your message here...">
-                    <button type="button" onclick="sendMessage()">SEND</button>
+
+            <!-- Typing Indicator -->
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="avatar bot-avatar">
+                    <img src="{{ url_for('static', path='/icons/logoacsn.png') }}" alt="Bot Avatar">
+                </div>
+                <div class="typing-bubble">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
                 </div>
             </div>
-        </div>
+        </main>
+
+        <!-- Input Area -->
+        <footer class="input-area">
+            <div class="input-wrapper">
+                <textarea id="messageInput" placeholder="Type your message here..." rows="1"></textarea>
+                <button id="sendButton" class="send-btn" aria-label="Send message">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            <p class="input-hint">Press Enter to send, Shift+Enter for new line</p>
+        </footer>
     </div>
-    <script src="/static/js/script.js"></script>
+
+    <script src="{{ url_for('static', path='/js/script.js') }}"></script>
 </body>
 </html>

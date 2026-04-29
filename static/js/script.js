@@ -1,220 +1,129 @@
-let chatStarted = false;
-let lastMessage = null;
+document.addEventListener('DOMContentLoaded', () => {
+    // DOM Elements
+    const chatContainer = document.getElementById('chatContainer');
+    const messagesWrapper = document.getElementById('messagesWrapper');
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+    const typingIndicator = document.getElementById('typingIndicator');
+    const themeToggle = document.getElementById('themeToggle');
+    const clearChat = document.getElementById('clearChat');
 
-function toggleTheme() {
-    const body = document.body;
-    const themeIcon = document.querySelector('.theme-icon');
-    if (body.getAttribute('data-theme') === 'dark') {
-        body.setAttribute('data-theme', 'light');
-        themeIcon.textContent = '☀️';
-    } else {
-        body.setAttribute('data-theme', 'dark');
-        themeIcon.textContent = '🌙';
+    // Theme Management
+    const currentTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    updateThemeIcon(currentTheme);
+
+    themeToggle.addEventListener('click', () => {
+        const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateThemeIcon(newTheme);
+    });
+
+    function updateThemeIcon(theme) {
+        const icon = themeToggle.querySelector('i');
+        icon.className = theme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
     }
-}
 
-function newChat() {
-    const startScreen = document.getElementById('start-screen');
-    const chatBody = document.getElementById('chat-body');
-    const chatFooter = document.getElementById('chat-footer');
-
-    startScreen.style.display = 'flex';
-    chatBody.style.display = 'none';
-    chatFooter.style.display = 'none';
-    chatBody.innerHTML = '';
-    chatStarted = false;
-    lastMessage = null;
-}
-
-function markdownToHtml(markdown) {
-            // 1. Handle code blocks (simple non-multiline for now)
-            let html = markdown.replace(/`([^`]+)`/g, '<code>$1</code>');
-            
-            // 2. Convert bold (**text**)
-            html = html.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-
-            // 3. Convert bullet lists (* item)
-            // Replace list items with <li>, preserving leading/trailing spaces for list grouping
-            html = html.replace(/^(?:[\s]*?)[*-]\s+(.*)$/gm, '<li>$1</li>');
-            
-            // Group contiguous <li> elements into <ul> blocks
-            html = html.replace(/(<li>.*?<\/li>)+/gs, '<ul>$&</ul>');
-            
-            // Remove redundant list wrappers (e.g., </ul><ul>)
-            html = html.replace(/<\/ul>\n?<ul>/g, ''); 
-
-            // 4. Convert double newlines to paragraph breaks, single newlines to <br>
-            html = html.replace(/\n\s*\n/g, '</p><p>');
-            html = html.replace(/\n/g, '<br>');
-            
-            // 5. Wrap the whole thing in a <p> tag if it doesn't already start with a block element
-            if (!html.startsWith('<ul>') && !html.startsWith('<p>')) {
-                 html = `<p>${html}</p>`;
-            }
-
-            return html;
-        }
-
-function sendInitialMessage() {
-    const input = document.getElementById('search-input');
-    const messageText = input.value.trim();
-    const chatBody = document.getElementById('chat-body');
-    const chatFooter = document.getElementById('chat-footer');
-    const startScreen = document.getElementById('start-screen');
-
-    if (messageText) {
-        startScreen.style.display = 'none';
-        chatBody.style.display = 'flex';
-        chatFooter.style.display = 'flex';
-        chatStarted = true;
-
-        const userMsg = document.createElement('div');
-        userMsg.className = 'message user-message';
-        userMsg.textContent = messageText;
-        chatBody.appendChild(userMsg);
-
-        // Show loading indicator
-        const loadingMsg = document.createElement('div');
-        loadingMsg.className = 'message bot-message loading';
-        loadingMsg.textContent = 'Thinking...';
-        chatBody.appendChild(loadingMsg);
-        chatBody.scrollTop = chatBody.scrollHeight;
-
-        // Send message to backend
-        fetch('/generate_response', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ message: messageText })
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Remove loading message
-            chatBody.removeChild(loadingMsg);
-
-            const botMsg = document.createElement('div');
-            botMsg.className = 'message bot-message';
-            if (data.error) {
-                botMsg.textContent = 'Sorry, I encountered an error: ' + data.error;
-            } else {
-                botMsg.textContent = data.response;
-            }
-            chatBody.appendChild(botMsg);
-            chatBody.scrollTop = chatBody.scrollHeight;
-        })
-        .catch(error => {
-            // Remove loading message
-            chatBody.removeChild(loadingMsg);
-
-            const botMsg = document.createElement('div');
-            botMsg.className = 'message bot-message';
-            botMsg.textContent = 'Sorry, I couldn\'t process your message. Please try again.';
-            chatBody.appendChild(botMsg);
-            chatBody.scrollTop = chatBody.scrollHeight;
+    // Clear Chat
+    clearChat.addEventListener('click', () => {
+        const messages = messagesWrapper.querySelectorAll('.message');
+        messages.forEach((msg, index) => {
+            if (index > 0) msg.remove();
         });
+        typingIndicator.classList.remove('active');
+    });
 
-        lastMessage = messageText;
-        input.value = '';
-    }
-}
+    // Auto-resize Textarea
+    messageInput.addEventListener('input', () => {
+        messageInput.style.height = 'auto';
+        messageInput.style.height = `${messageInput.scrollHeight}px`;
+    });
 
-function appendMessage(text, isUser, isError = false) {
-            const chatBody = document.getElementById('chat-body');
-            const messageWrapper = document.createElement('div');
-            messageWrapper.className = `message ${isUser ? 'user-message' : 'bot-message'} ${isError ? 'error-message' : ''}`;
-            
-            if (isUser || isError) {
-                // User messages and error messages are plain text
-                messageWrapper.textContent = text;
-            } else {
-                // Bot responses are converted from Markdown to HTML
-                messageWrapper.innerHTML = markdownToHtml(text);
-            }
+    // Send Message
+    const sendMessage = async () => {
+        const message = messageInput.value.trim();
+        if (!message) return;
 
-            chatBody.appendChild(messageWrapper);
-            chatBody.scrollTop = chatBody.scrollHeight; // Auto-scroll to bottom
+        // Add user message
+        addMessage(message, 'user');
+        messageInput.value = '';
+        messageInput.style.height = 'auto';
+
+        // Show typing indicator
+        typingIndicator.classList.add('active');
+        scrollToBottom();
+
+        try {
+            const response = await fetch('/generate_response', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message })
+            });
+
+            const data = await response.json();
+            const botResponse = data.response || data.error || 'Sorry, something went wrong.';
+
+            // Add bot message
+            addMessage(botResponse, 'bot');
+        } catch (error) {
+            addMessage('Error: Could not connect to the server. Please try again.', 'bot');
+        } finally {
+            typingIndicator.classList.remove('active');
+            scrollToBottom();
+        }
+    };
+
+    // Add Message to Chat
+    const addMessage = (text, sender) => {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}-message`;
+
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        if (sender === 'bot') {
+            messageDiv.innerHTML = `
+                <div class="avatar bot-avatar">
+                    <img src="/static/icons/logoacsn.png" alt="Bot Avatar">
+                </div>
+                <div class="message-content">
+                    <div class="message-bubble">${formatText(text)}</div>
+                    <span class="message-time">${time}</span>
+                </div>
+            `;
+        } else {
+            messageDiv.innerHTML = `
+                <div class="avatar user-avatar">U</div>
+                <div class="message-content">
+                    <div class="message-bubble">${formatText(text)}</div>
+                    <span class="message-time">${time}</span>
+                </div>
+            `;
         }
 
-function sendMessage() {
-    const input = document.getElementById('user-input');
-    const messageText = input.value.trim();
-    const chatBody = document.getElementById('chat-body');
-    const chatFooter = document.getElementById('chat-footer');
-    const startScreen = document.getElementById('start-screen');
+        messagesWrapper.appendChild(messageDiv);
+        scrollToBottom();
+    };
 
-    if (messageText) {
-        if (!chatStarted) {
-            startScreen.style.display = 'none';
-            chatBody.style.display = 'flex';
-            chatFooter.style.display = 'flex';
-            chatStarted = true;
+    // Format Text (handle newlines)
+    const formatText = (text) => {
+        return text.replace(/\n/g, '<br>');
+    };
+
+    // Scroll to Bottom
+    const scrollToBottom = () => {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    };
+
+    // Event Listeners
+    sendButton.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
         }
+    });
 
-        const userMsg = document.createElement('div');
-        userMsg.className = 'message user-message';
-        userMsg.textContent = messageText;
-        chatBody.appendChild(userMsg);
-
-        // Show loading indicator
-        const loadingMsg = document.createElement('div');
-        loadingMsg.className = 'message bot-message loading';
-        loadingMsg.textContent = 'Thinking...';
-        chatBody.appendChild(loadingMsg);
-        chatBody.scrollTop = chatBody.scrollHeight;
-
-        // Send message to backend
-        fetch('/generate_response', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ message: messageText })
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Remove loading message
-            chatBody.removeChild(loadingMsg);
-
-            const botMsg = document.createElement('div');
-            botMsg.className = 'message bot-message';
-            if (data.error) {
-                botMsg.textContent = 'Sorry, I encountered an error: ' + data.error;
-            } else {
-                appendMessage(data.response, false);
-            }
-        })
-        .catch(error => {
-            // Remove loading message
-            chatBody.removeChild(loadingMsg);
-
-            const botMsg = document.createElement('div');
-            botMsg.className = 'message bot-message';
-            botMsg.textContent = 'Sorry, I couldn\'t process your message. Please try again.';
-            chatBody.appendChild(botMsg);
-            chatBody.scrollTop = chatBody.scrollHeight;
-        });
-
-        lastMessage = messageText;
-        input.value = '';
-    }
-}
-
-// Event listeners
-document.getElementById('user-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        sendMessage();
-    }
-});
-
-document.getElementById('search-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        sendInitialMessage();
-    }
-});
-
-document.getElementById('search-input').addEventListener('paste', function(e) {
-    setTimeout(() => {
-        e.target.style.background = 'var(--input-bg)';
-    }, 0);
+    // Initial scroll to bottom
+    scrollToBottom();
 });
