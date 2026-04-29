@@ -1,6 +1,6 @@
 import pandas as pd
 from langchain_community.vectorstores import MongoDBAtlasVectorSearch
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
 from langchain_core.documents import Document
 from pymongo import MongoClient
 
@@ -49,7 +49,10 @@ for index, record in df_long.iterrows():
 
 # --- 3. Instantiate Embeddings Model ---
 
-embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+embeddings = HuggingFaceInferenceAPIEmbeddings(
+    api_key=os.getenv("HUGGINGFACEHUB_API_TOKEN"),
+    model_name="sentence-transformers/all-MiniLM-L6-v2",
+)
 
 try:
     vectorStore = MongoDBAtlasVectorSearch.from_documents(

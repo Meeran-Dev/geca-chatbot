@@ -11,16 +11,20 @@
         <div class="main-content">
             <div class="chat-header" id="chat-header">
                 <img src="/static/icons/logoacsn.png" class="logo">
-                <h2 data-testid="navbar-title">GECA CHATBOT</h2>
+                <div class="header-title-group">
+                    <h2 data-testid="navbar-title">GECA CHATBOT</h2>
+                    <p class="header-tagline">College info assistant</p>
+                </div>
                 <button id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme">
                     <span class="theme-icon">🌙</span>
                 </button>
             </div>
             <div class="start-screen" id="start-screen">
                 <h1>GECA CHATBOT</h1>
+                <p class="start-subtitle">Ask about syllabus, faculty, timetable, and student life.</p>
                 <div class="start-screen-input">
                     <input type="text" id="search-input" placeholder="Type your message...">
-                    <button type="button" onclick="sendInitialMessage()">Send</button>
+                    <button type="button" onclick="sendInitialMessage()">SEND</button>
                 </div>
             </div>
             <div class="chat-body" id="chat-body" style="display: none;">
@@ -29,7 +33,7 @@
             <div class="chat-footer" id="chat-footer" style="display: none;">
                 <div class="footer-input-container">
                     <input type="text" id="user-input" placeholder="Type your message here...">
-                    <button type="button" onclick="sendMessage()">Send</button>
+                    <button type="button" onclick="sendMessage()">SEND</button>
                 </div>
             </div>
         </div>

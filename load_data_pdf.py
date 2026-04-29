@@ -5,7 +5,7 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
 from langchain_core.output_parsers import PydanticOutputParser
 from pydantic import BaseModel, Field
 from langchain_core.prompts import PromptTemplate
@@ -71,7 +71,10 @@ docs = cleaned_pages
 split_docs = text_splitter.split_documents(docs)
 
 #embeddings = VoyageAIEmbeddings(voyage_api_key=os.environ["VOYAGE_API_KEY"], model="voyage-3.5-lite")
-embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+embeddings = HuggingFaceInferenceAPIEmbeddings(
+    api_key=os.getenv("HUGGINGFACEHUB_API_TOKEN"),
+    model_name="sentence-transformers/all-MiniLM-L6-v2",
+)
 
 vectorStore = MongoDBAtlasVectorSearch.from_documents(
     split_docs, embeddings, collection=collection
